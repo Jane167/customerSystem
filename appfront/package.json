@@ -10,8 +10,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.26.1",
     "bk-magic-vue": "^2.4.7",
     "vue": "^2.5.2",
+    "vue-axios": "^3.4.1",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
