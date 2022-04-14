@@ -1,6 +1,5 @@
 <template>
     <div class="wrapper">
-
         <h2 class="title">
             <bk-icon type="dialogue" />
             {{msg}}
@@ -19,17 +18,17 @@
 
                             <bk-form-item label="身  份：" :required="true">
                                 <bk-radio-group v-model="loginForm.identity">
-                                    <bk-radio :label="'会员'" class="mr20">
+                                    <bk-radio :label="'会员'" value="0" class="mr20">
                                     </bk-radio>
-                                    <bk-radio :label="'客服'" class="mr20">
+                                    <bk-radio :label="'客服'" value="1" class="mr20">
                                     </bk-radio>
-                                    <bk-radio :label="'管理员'">
+                                    <bk-radio :label="'管理员'" value="2">
                                     </bk-radio>
                                 </bk-radio-group>
                             </bk-form-item>
                             <bk-form-item>
-                                <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click.stop.prevent="submitData">登录</bk-button>
-                                <bk-button ext-cls="mr5" theme="default" title="取消">取消</bk-button>
+                                <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="loginAccount">登录</bk-button>
+                                <bk-button ext-cls="mr5" theme="default" title="取消" @click="cancelLogin">取消</bk-button>
                             </bk-form-item>
                         </bk-form>
                     </div>
@@ -44,20 +43,19 @@
                             <bk-form-item label="确认密码：" :required="true" :property="'confirm'" :desc="customDesc">
                                 <bk-input v-model="registerForm.confirm" type="password" placeholder="请再次输入密码"></bk-input>
                             </bk-form-item>
-
                             <bk-form-item label="身  份：" :required="true">
                                 <bk-radio-group v-model="registerForm.identity">
-                                    <bk-radio :label="'会员'" class="mr20">
+                                    <bk-radio :label="'会员'" value="0" class="mr20">
                                     </bk-radio>
-                                    <bk-radio :label="'客服'" class="mr20">
+                                    <bk-radio :label="'客服'" value="1" class="mr20">
                                     </bk-radio>
-                                    <bk-radio :label="'管理员'">
+                                    <bk-radio :label="'管理员'" value="2">
                                     </bk-radio>
                                 </bk-radio-group>
                             </bk-form-item>
                             <bk-form-item>
                                 <bk-button style="margin-right: 3px;" theme="primary" title="注册" @click="registerAccount">注册</bk-button>
-                                <bk-button ext-cls="mr5" theme="default" title="取消">取消</bk-button>
+                                <bk-button ext-cls="mr5" theme="default" @click="cancelRegister" title="取消">取消</bk-button>
                             </bk-form-item>
                         </bk-form>
                     </div>
@@ -92,17 +90,145 @@ export default {
             customDesc: 'hello world'
         }
     },
-    method: {
+    methods: {
         submitData () {
             alert(JSON.stringify(this.formData))
         },
         changeDate (oldDay, newDay) {
             this.formData.date = newDay
         },
+        loginAccount () {
+            console.log('loginForm', this.loginForm)
+            if (this.loginForm.username === '') {
+                this.$bkMessage({
+                    message: '用户名不能为空，请重新登录！',
+                    theme: 'warning'
+                })
+            } else if (this.loginForm.password === '') {
+                this.$bkMessage({
+                    message: '密码不能为空，请重新输入！',
+                    theme: 'warning'
+                })
+            } else if (this.loginForm.identity === '') {
+                this.$bkMessage({
+                    message: '请选择你的身份！',
+                    theme: 'warning'
+                })
+            }
+            else {
+                //调用登录接口
+                this.$axios.post('project/login_authentication/', this.loginForm).then(res => {
+                    console.log(res);
+                    if (res.data.result === true) {
+                        this.$bkMessage({
+                            message: '登录成功！',
+                            theme: 'success'
+                        })
+                        if (this.loginForm.identity == '0') {
+                            setTimeout(() => {
+                                this.$router.push({
+                                    name: 'member'
+                                })
+                            }, 100)
+                        } else if (this.loginForm.identity == '1') {
+                            setTimeout(() => {
+                                this.$router.push({
+                                    name: 'customer'
+                                })
+                            }, 100)
+                        } else {
+                            setTimeout(() => {
+                                this.$router.push({
+                                    name: 'manager'
+                                })
+                            }, 100)
+                        }
+                    } else {
+                        this.$bkMessage({
+                            message: '用户名或密码错误，请重新登录！',
+                            theme: 'error'
+                        })
+                    }
+                }).catch(error => {
+                    this.$bkMessage({
+                        message: error,
+                        theme: 'error'
+                    })
+                });
+            }
+
+        },
+        cancelLogin () {
+            this.loginForm.username = ''
+            this.loginForm.password = ''
+            this.loginForm.identity = ''
+            this.$bkMessage({
+                message: '您已取消登录！',
+                theme: 'primary'
+            })
+        },
         registerAccount () {
             console.log('reginsterForm', this.registerForm)
-            this.$http.get('project/reginster', registerForm).then((res) => {
-                console.log(res.data)
+            if (this.registerForm.username === '') {
+                this.$bkMessage({
+                    message: '用户名不能为空，请重新输入！',
+                    theme: 'error'
+                })
+            }
+            else if (this.registerForm.password === '') {
+                this.$bkMessage({
+                    message: '密码不能为空，请重新输入！',
+                    theme: 'warning'
+                })
+            }
+            else if (this.registerForm.confirm === '') {
+                this.$bkMessage({
+                    message: '确认密码不能为空，请重新输入！',
+                    theme: 'warning'
+                })
+            } else if (this.registerForm.identity === '') {
+                this.$bkMessage({
+                    message: '请选择你要注册的身份！',
+                    theme: 'warning'
+                })
+            } else if (this.registerForm.password !== this.registerForm.confirm) {
+                this.$bkMessage({
+                    message: '两次密码不一致，请重新输入！',
+                    theme: 'error'
+                })
+            } else {
+                //调用注册接口
+                this.$axios.post('project/register/', this.registerForm).then(res => {
+                    console.log(res);
+                    if (res.data.result === true) {
+                        this.$bkMessage({
+                            message: '注册成功！',
+                            theme: 'success'
+                        })
+                    } else {
+                        this.$bkMessage({
+                            message: '注册失败',
+                            theme: 'error'
+                        })
+                    }
+                }).catch(error => {
+                    this.$bkMessage({
+                        message: error,
+                        theme: 'error'
+                    })
+                });
+
+            }
+
+        },
+        cancelRegister () {
+            this.registerForm.username = ''
+            this.registerForm.password = ''
+            this.registerForm.confirm = ''
+            this.registerForm.identity = ''
+            this.$bkMessage({
+                message: '您已取消注册操作！',
+                theme: 'primary'
             })
         }
     }

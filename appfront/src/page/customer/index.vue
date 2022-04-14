@@ -6,10 +6,10 @@
 
 <script>
 export default {
-    name: 'manager',
+    name: 'customer',
     data () {
         return {
-            msg: '你好管理员'
+            msg: '你好客服'
         }
     }
 }

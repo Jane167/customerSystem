@@ -17,15 +17,18 @@ from .models import *
 # 注册
 def register(request):
     try:
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        role = request.POST.get("role")
+        jsonRes = json.loads(request.body)
+        username = jsonRes["username"]
+        password = jsonRes["password"]
+        role = jsonRes["identity"]
 
         user = {
             "username": username,
             "password": password,
             "role": role
         }
+        # print('requestBody', jsonLoad)
+        print('user用户:', user)
         if int(role) == 0:
             if Member.objects.filter(username = username):
                 return JsonResponse({"result": False, "code":101,"message": '注册失败，该用户名已经注册'})
@@ -50,16 +53,19 @@ def register(request):
         message = "注册成功！"
     return JsonResponse({"result": result, "message": message})
 
-# 用户验证
+# 登录验证
 def login_authentication(request):
-    username = request.POST.get("username")
-    password = request.POST.get("password")
-    role = request.POST.get("role")
+    JsonRes = json.loads(request.body)
+    username = JsonRes["username"]
+    password = JsonRes["password"]
+    role = JsonRes["identity"]
     user = {
         "username": username,
         "password": password,
         "role": role,
     }
+    print('登录:', JsonRes)
+    print('登录用户', user)
     try:
         if int(role) == 0:
             result0 = Member.objects.filter(**user)
