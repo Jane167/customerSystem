@@ -28,6 +28,8 @@
                             </bk-form-item>
                             <bk-form-item>
                                 <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="loginAccount">登录</bk-button>
+                                <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="test">测试</bk-button>
+                                
                                 <bk-button ext-cls="mr5" theme="default" title="取消" @click="cancelLogin">取消</bk-button>
                             </bk-form-item>
                         </bk-form>
@@ -66,6 +68,8 @@
 </template>
 
 <script>
+import axios from '../../assets/js/axios'
+
 export default {
     name: 'login',
     data () {
@@ -90,7 +94,19 @@ export default {
             customDesc: 'hello world'
         }
     },
+    create: {
+        
+    },
     methods: {
+        test () {
+            axios.Post({
+                url: 'http://127.0.0.1:8000/project/register/',
+                params: this.registerForm,
+                callback: (res) => {
+                    console.log('test', res)
+                }
+            })
+        },
         submitData () {
             alert(JSON.stringify(this.formData))
         },

@@ -95,3 +95,57 @@ def login_authentication(request):
         print(error)
     else:
         return JsonResponse({"result": False, "code": 101, "message": '登录失败！'})
+
+#获取会员用户列表
+def get_member_list(request):
+    """
+    获取会员列表数据
+    """
+    if request.method == 'GET':
+        members = Member.objects.all()
+        result_data = []
+        for item in members:
+            result_data.append(
+                {
+                    "id": item.id,
+                    "username": item.username,
+                    "password": item.password,
+                    "nickname": item.nickname,
+                    "introduction": item.introduction,
+                    "create_time": item.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "update_time": item.update_time.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
+        return JsonResponse(
+            {
+                "result": True, "code": 200,
+                "data": result_data
+            }
+        )
+
+#获取客户用户列表
+def get_customer_list(request):
+    """
+    获取会员列表数据
+    """
+    if request.method == 'GET':
+        customers = Customer.objects.all()
+        result_data = []
+        for item in customers:
+            result_data.append(
+                {
+                    "id": item.id,
+                    "username": item.username,
+                    "password": item.password,
+                    "nickname": item.nickname,
+                    "introduction": item.introduction,
+                    "create_time": item.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "update_time": item.update_time.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
+        return JsonResponse(
+            {
+                "result": True, "code": 200,
+                "data": result_data
+            }
+        )  

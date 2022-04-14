@@ -18,7 +18,10 @@ class UserAbstractModel(models.Model):
 
     username = models.CharField('用户名', default='', max_length=50, null=False)
     password = models.CharField('密码', default='', max_length=50, null=False)
-    created = models.DateTimeField('注册时间', auto_now_add=True, null=False)
+    create_time = models.DateTimeField('注册时间', auto_now_add=True, null=False)
+    update_time = models.DateTimeField('更新时间', auto_now=True, null=True)
+    nickname = models.CharField('昵称', default='', max_length=50, null=True, blank=True)
+    introduction = models.CharField('个人介绍', default='', max_length=50, null=True, blank=True)
 
     class Meta:
         abstract = True
