@@ -149,3 +149,46 @@ def get_customer_list(request):
                 "data": result_data
             }
         )  
+
+#编辑客服信息
+def edit_customer_info(request):
+    """
+    编辑
+    """
+    if request.method == 'POST':
+        jsonRes = json.loads(request.body)
+
+        customer_id = jsonRes['id']
+        kwargs = {
+            "nickname": jsonRes['nickname'],
+            "username": jsonRes['username'],
+            "password": jsonRes['password'],
+            "introduction": jsonRes['introduction']
+        }
+        
+        try:
+            Customer.objects.filter(id=customer_id).update(**kwargs)
+            return JsonResponse({"result": True, "code": 200, "message": "修改成功!"})
+        except Exception:
+            return JsonResponse({"result": False, "code": 101, "message": "保存修改信息失败！"})
+
+
+# 删除任务接口
+def delete_member_info(request):
+    """
+    删除任务数据
+    """
+    if request.method == 'GET':
+        member_id = request.GET.get("id")
+        try:
+            with transaction.atomic():
+                member = Member.objects.get(id=int(member_id))
+                member.delete()
+        except Exception:
+            return JsonResponse({"result": False, "code": 101, "message": "删除任务失败！"})
+        return JsonResponse(
+            {
+                "result": True, "code": 200,
+                "message": "删除成功！"
+            }
+        )
