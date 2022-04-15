@@ -42,7 +42,7 @@
             </bk-tab>
         </div>
         <!-- 便捷客服信息dialog -->
-        <bk-dialog v-model="editInfo.primary.visible" :confirm="submitEditData()" theme="primary" :mask-close="false" :header-position="editInfo.primary.headerPosition" title="编辑客服信息">
+        <bk-dialog v-model="editInfo.primary.visible" @confirm="submitEditData" theme="primary" :mask-close="false" :header-position="editInfo.primary.headerPosition" title="编辑客服信息">
             <bk-form :label-width="100" :model="customerFormData">
                 <bk-form-item label="昵称" :property="'nickname'" :desc="customDesc">
                     <bk-input v-model="customerFormData.nickname" placeholder="请输入昵称"></bk-input>
@@ -180,17 +180,20 @@ export default {
                     theme: 'error'
                 })
             } else {
-                this.$axios.get('project/edit_customer_info/',this.customerFormData).then(res => {
+                this.$axios.post('project/edit_customer_info/',this.customerFormData).then(res => {
                     console.log('提交', res);
-                    // if (res.data.result === true) {
-                    //     this.customerList = res.data.data
-                    // } else {
-                    //     this.$bkMessage({
-                    //         message: '获取客服列表失败',
-                    //         theme: 'error'
-                    //     })
-                    // }
-
+                    if (res.data.result === true) {
+                        this.$bkMessage({
+                            message: '修改成功！',
+                            theme: 'success'
+                        })
+                        this.getCustomerList()
+                    } else {
+                        this.$bkMessage({
+                            message: '修改失败',
+                            theme: 'error'
+                        })
+                    }
                 }).catch(error => {
                     this.$bkMessage({
                         message: error,
@@ -198,7 +201,6 @@ export default {
                     })
                 });
             }
-
         }
     }
 }
@@ -207,7 +209,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .wrapper {
-    /* background-image: url('../../images/homepage.jpg'); */
     background: #ffffff;
     height: 100%;
     overflow: hidden;

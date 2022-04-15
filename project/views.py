@@ -1,3 +1,4 @@
+from unittest import result
 from django.shortcuts import render
 
 from django.http import HttpResponse
@@ -170,7 +171,13 @@ def edit_customer_info(request):
             Customer.objects.filter(id=customer_id).update(**kwargs)
             return JsonResponse({"result": True, "code": 200, "message": "修改成功!"})
         except Exception:
+            # result1 = {"result": False, "code": 101, "message": "保存修改信息失败！"}
+            # return HttpResponse(json.dumps(result1,ensure_ascii=False),content_type="application/json,charset=utf-8")
+
             return JsonResponse({"result": False, "code": 101, "message": "保存修改信息失败！"})
+    else:
+        return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
+         
 
 
 # 删除任务接口
