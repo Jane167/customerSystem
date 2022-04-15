@@ -10,7 +10,9 @@ urlpatterns = [
     url(r'^register/$', views.register),
     url(r'^get_member_list', views.get_member_list),
     url(r'^get_customer_list', views.get_customer_list),
-    url(r'^edit_customer_info', views.edit_customer_info)
+    url(r'^edit_customer_info', views.edit_customer_info),
+    url(r'^delete_customer_info', views.delete_customer_info)
+
 
     
 

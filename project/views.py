@@ -171,26 +171,23 @@ def edit_customer_info(request):
             Customer.objects.filter(id=customer_id).update(**kwargs)
             return JsonResponse({"result": True, "code": 200, "message": "修改成功!"})
         except Exception:
-            # result1 = {"result": False, "code": 101, "message": "保存修改信息失败！"}
-            # return HttpResponse(json.dumps(result1,ensure_ascii=False),content_type="application/json,charset=utf-8")
-
             return JsonResponse({"result": False, "code": 101, "message": "保存修改信息失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
          
 
 
-# 删除任务接口
-def delete_member_info(request):
+# 注销客服账号接口
+def delete_customer_info(request):
     """
     删除任务数据
     """
     if request.method == 'GET':
-        member_id = request.GET.get("id")
+        customer_id = request.GET.get("customer_id")
         try:
             with transaction.atomic():
-                member = Member.objects.get(id=int(member_id))
-                member.delete()
+                customer = Customer.objects.get(id=int(customer_id))
+                customer.delete()
         except Exception:
             return JsonResponse({"result": False, "code": 101, "message": "删除任务失败！"})
         return JsonResponse(
@@ -199,3 +196,5 @@ def delete_member_info(request):
                 "message": "删除成功！"
             }
         )
+    else:
+        return JsonResponse({'result': False, 'code': 401, 'message': '请求方法错误！'})

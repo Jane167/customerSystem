@@ -4,13 +4,13 @@
             <h1 style="float: left; margin: 20px">
                 <bk-icon style="margin: 20px" type="dialogue" />{{msg}}
             </h1>
-            <bk-tag theme="info" style="margin-top: 30px" radius="5px">{{identity}}</bk-tag>
+            <bk-tag theme="danger" style="margin-top: 30px" radius="5px">{{identity}}</bk-tag>
             <bk-fixed-navbar v-if="showNav" style="background: #ebebeb" :position="position" :nav-items="navItems"></bk-fixed-navbar>
         </div>
-        <div>
+        <div style="margin-top: 50px">
             <bk-tab :active.sync="active" :type="currentType" style="margin-top: 20px; width: 90%; margin: 0 auto" tab-position="left">
                 <bk-tab-panel v-for="(panel, index) in panels" v-bind="panel" :key="index">
-                    <div v-if="panel.name==='member'">用户
+                    <div v-if="panel.name==='member'">
                         <bk-table style="margin-top: 15px;" :data="memberList">
                             <bk-table-column type="index" label="id" width="60"></bk-table-column>
                             <bk-table-column label="昵称" prop="nickname"></bk-table-column>
@@ -21,7 +21,7 @@
                             <bk-table-column label="更新时间" prop="update_time"></bk-table-column>
                         </bk-table>
                     </div>
-                    <div v-else-if="panel.name==='customer'">客服
+                    <div v-else-if="panel.name==='customer'">
                         <bk-table style="margin-top: 15px;" :data="customerList">
                             <bk-table-column type="index" label="id" width="60"></bk-table-column>
                             <bk-table-column label="昵称" prop="nickname"></bk-table-column>
@@ -180,7 +180,7 @@ export default {
                     theme: 'error'
                 })
             } else {
-                this.$axios.post('project/edit_customer_info/',this.customerFormData).then(res => {
+                this.$axios.post('project/edit_customer_info/', this.customerFormData).then(res => {
                     console.log('提交', res);
                     if (res.data.result === true) {
                         this.$bkMessage({
@@ -201,6 +201,23 @@ export default {
                     })
                 });
             }
+        },
+        remove (item) {
+            let customer_id = `${item.id}`
+            this.$http.get('project/delete_customer_info/', { params: { 'customer_id': customer_id } }).then(res => {
+                if (res.data.result === true) {
+                    this.$bkMessage({
+                        message: '注销成功！',
+                        theme: 'success'
+                    })
+                    this.getCustomerList()
+                } else {
+                    this.$bkMessage({
+                        message: '注销失败',
+                        theme: 'error;'
+                    })
+                }
+            })
         }
     }
 }
