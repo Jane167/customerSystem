@@ -4,7 +4,7 @@
             <h1 style="float: left; margin: 20px">
                 <bk-icon style="margin: 20px" type="dialogue" />{{msg}}
             </h1>
-            <bk-tag theme="danger" style="margin-top: 30px" radius="5px">{{identity}}</bk-tag>
+            <bk-tag theme="danger" style="margin-top: 30px" type="stroke" radius="5px">{{identity}}</bk-tag>
             <bk-fixed-navbar v-if="showNav" style="background: #ebebeb" :position="position" :nav-items="navItems"></bk-fixed-navbar>
         </div>
         <div style="margin-top: 50px">

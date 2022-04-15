@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+ASGI_APPLICATION = 'customerSystem.asgi.application'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'project'
+    'project',
+    'channels'
 ]
 
 MIDDLEWARE = [

@@ -4,7 +4,7 @@
             <h1 style="float: left; margin: 20px">
                 <bk-icon style="margin: 20px" type="dialogue" />{{msg}}
             </h1>
-            <bk-tag theme="info" style="margin-top: 30px" radius="5px">{{identity}}</bk-tag>
+            <bk-tag theme="info" style="margin-top: 30px" type="stroke" radius="5px">{{identity}}</bk-tag>
             <bk-fixed-navbar v-if="showNav" style="background: #ebebeb" :position="position" :nav-items="navItems"></bk-fixed-navbar>
         </div>
         <div style="margin-top: 50px">
@@ -45,7 +45,7 @@
                 </bk-tab-panel>
             </bk-tab>
         </div>
-        <!-- 编辑客服信息dialog -->
+        <!-- 编辑人个人资料信息dialog -->
         <bk-dialog v-model="editPersonInfo.primary.visible" @confirm="submitEditPersonData" theme="primary" :mask-close="false" :header-position="editPersonInfo.primary.headerPosition" title="编辑个人资料">
             <bk-form :label-width="100" :model="personInfo">
                 <bk-form-item label="昵称" :property="'nickname'" :desc="customDesc">
