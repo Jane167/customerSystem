@@ -29,7 +29,7 @@
                             <bk-form-item>
                                 <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="loginAccount">登录</bk-button>
                                 <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="test">测试</bk-button>
-                                
+
                                 <bk-button ext-cls="mr5" theme="default" title="取消" @click="cancelLogin">取消</bk-button>
                             </bk-form-item>
                         </bk-form>
@@ -91,11 +91,12 @@ export default {
                 confirm: '',
                 identity: '',
             },
-            customDesc: 'hello world'
+            customDesc: ' ',
+            member_id: ''
         }
     },
     create: {
-        
+
     },
     methods: {
         test () {
@@ -134,6 +135,9 @@ export default {
             else {
                 //调用登录接口
                 this.$axios.post('project/login_authentication/', this.loginForm).then(res => {
+                    if(res.data.id){
+                        var id = res.data.id[0]
+                    }
                     console.log(res);
                     if (res.data.result === true) {
                         this.$bkMessage({
@@ -141,9 +145,14 @@ export default {
                             theme: 'success'
                         })
                         if (this.loginForm.identity == '0') {
+                            this.member_id = id
+                            console.log('member_id', id)
                             setTimeout(() => {
                                 this.$router.push({
-                                    name: 'member'
+                                    name: 'member',
+                                    params: {
+                                        id: this.member_id
+                                    }
                                 })
                             }, 100)
                         } else if (this.loginForm.identity == '1') {

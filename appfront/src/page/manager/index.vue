@@ -41,7 +41,7 @@
                 </bk-tab-panel>
             </bk-tab>
         </div>
-        <!-- 便捷客服信息dialog -->
+        <!-- 编辑客服信息dialog -->
         <bk-dialog v-model="editInfo.primary.visible" @confirm="submitEditData" theme="primary" :mask-close="false" :header-position="editInfo.primary.headerPosition" title="编辑客服信息">
             <bk-form :label-width="100" :model="customerFormData">
                 <bk-form-item label="昵称" :property="'nickname'" :desc="customDesc">
