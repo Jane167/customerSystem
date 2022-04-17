@@ -1,6 +1,7 @@
 from logging import Logger
 from turtle import update
 from unittest import result
+from django.dispatch import receiver
 from django.shortcuts import render
 
 from django.http import HttpResponse
@@ -97,7 +98,7 @@ def login_authentication(request):
                 else:
                     return JsonResponse({"result": False, "code": 101, "message": '用户名或密码错误'})
         except Exception as error:
-            print(error)
+            print('登录失败原因：',error)
             return JsonResponse({"result": False, "code": 101, "message": '登录失败！'})
     else:
         return JsonResponse({"result": False, "code": 101, "message": '请求方法错误！'})
@@ -204,7 +205,7 @@ def delete_customer_info(request):
         return JsonResponse({'result': False, 'code': 401, 'message': '请求方法错误！'})
 
 #根据id查询会员用户信息
-def serach_member_info(request):
+def search_member_info(request):
     if request.method == 'GET':
         id = request.GET.get("id")
         print('id------:', id)
@@ -256,3 +257,26 @@ def edit_member_info(request):
             return JsonResponse({"result": False, "code": 101, "message": "保存修改信息失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
+
+#用户向客服发送消息
+def member_send_to_customer(request):
+    if request.method == 'GET':
+        sender = int(request.GET.get('sender'))
+        receiver = int(request.GET.get('receiver'))
+        message = request.GET.get('message')
+
+        kwargs = {
+            'sender': Member.objects.get(id = sender),
+            'receiver': Customer.objects.get(id = receiver),
+            'message': message
+        }
+        try:
+            ChatRecords.objects.create(**kwargs)
+            return JsonResponse({"result": True, "code": 200, "message": "发送成功!"})
+        except Exception as error:
+            print('发送错误原因', error)
+            return JsonResponse({"result": False, "code": 101, "message": "发送失败！"})
+    else:
+        return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
+
+

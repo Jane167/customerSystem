@@ -28,10 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-# Application definition
-ASGI_APPLICATION = 'customerSystem.asgi.application'
-
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'project',
-    'channels'
+
 ]
 
 MIDDLEWARE = [
@@ -74,6 +72,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'appfront/dist/static'),
 ]
 WSGI_APPLICATION = 'customerSystem.wsgi.application'
+# Application definition
+ASGI_APPLICATION = 'customerSystem.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -128,3 +136,4 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+

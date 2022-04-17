@@ -40,7 +40,26 @@
                         </div>
                     </div>
                     <div v-else-if="panel.name==='contactCustomer'">
-                        联系客服
+                        <bk-table style="margin-top: 15px;" :data="customerList">
+                            <bk-table-column type="index" label="id" width="60"></bk-table-column>
+                            <bk-table-column label="昵称" prop="nickname"></bk-table-column>
+                            <bk-table-column label="用户名" prop="username"></bk-table-column>
+                            <bk-table-column label="个人介绍" prop="introduction"></bk-table-column>
+                            <bk-table-column label="创建时间" prop="create_time"></bk-table-column>
+                            <bk-table-column label="更新时间" prop="update_time"></bk-table-column>
+                            <bk-table-column label="操作" width="150">
+                                <template slot-scope="props">
+                                    <bk-button class="mr10" theme="primary" text @click="openChatDialog(props.row)">
+                                        <bk-icon type="dialogue-empty" />
+                                        联系
+                                    </bk-button>
+                                    <bk-button class="mr10" theme="primary" text @click="openScoreDialog(props.row)">
+                                        <bk-icon type="star" />
+                                        评分
+                                    </bk-button>
+                                </template>
+                            </bk-table-column>
+                        </bk-table>
                     </div>
                 </bk-tab-panel>
             </bk-tab>
@@ -62,6 +81,56 @@
                 </bk-form-item>
             </bk-form>
         </bk-dialog>
+        <!-- 聊天dialog -->
+        <bk-dialog v-model="chatToCustomer.primary.visible" 
+        @confirm="sendToCustomer" theme="primary" 
+        :mask-close="false" 
+        :header-position="chatToCustomer.primary.headerPosition" 
+        title="聊天框"
+        ok-text="发送"
+        cancel-text="关闭"
+        fullscreen='true'
+        :auto-close='false'
+        >
+            <bk-form :label-width="100" :model="personInfo">
+                <bk-form-item :property="'records'" :desc="customDesc" style="margin-top: 200">
+                    <div id="chat-log">
+                        <div class="senderMes">
+                            <bk-tag theme="success">我</bk-tag><br>
+                            <span>{{chatToCustomer.message}}</span>
+                        </div>
+                        <div class="receiverMes">
+                            <bk-tag theme="info">我的</bk-tag><br>
+                            <span>这是消息</span>
+                        </div>
+                        <div class="senderMes">
+                            <bk-tag theme="success">我</bk-tag><br>
+                            <span>{{chatToCustomer.message}}</span>
+                        </div>
+                        <div class="receiverMes">
+                            <bk-tag theme="info">我的</bk-tag><br>
+                            <span>这是消息</span>
+                        </div>
+                    </div>
+                </bk-form-item>
+                <bk-form-item required="true" :property="'chat-messageinput'" :desc="customDesc">
+                    <bk-input id='chat-message-input' type="textarea" placeholder="请输入你要发送的信息" v-model='chatToCustomer.message'></bk-input>
+                </bk-form-item>
+            </bk-form>
+        </bk-dialog>
+        <!-- 给客服评分Dialog -->
+        <bk-dialog v-model="scoreToCustomer.primary.visible" theme="primary" :mask-close="false" :header-position="scoreToCustomer.primary.headerPosition" title="给个五星好评叭">
+            <bk-form :label-width="150" :model="personInfo">
+                <bk-form-item label="请选择你的评分等级" :property="'records'">
+                    <bk-rate :rate.sync="rate" :edit="true" @score="chooseRate" :tooltips="tooltips" :width="18" :height="18"></bk-rate>
+                </bk-form-item>
+            </bk-form>
+        </bk-dialog>
+        <!-- <bk-dialog>
+            <bk-input type="textarea" id='chat-log'></bk-input>
+            <bk-input id='chat-message-input' v-model='message'></bk-input>
+            <bk-button id="chat-message-submit" theme="primary" @click="sendToCustomer">发送</bk-button>
+        </bk-dialog> -->
     </div>
 </template>
 
@@ -91,18 +160,11 @@ export default {
                         this.exit()
                         // window.open('http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzgwMDgwMjAwMV80NDMwOTZfODAwODAyMDAxXzJf')
                     }
-                },
-                {
-                    icon: 'icon-star />',
-                    text: '评分',
-                    tooltip: '点击给客服打分',
-                    action: () => {
-                        this.exit()
-                        // window.open('http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzgwMDgwMjAwMV80NDMwOTZfODAwODAyMDAxXzJf')
-                    }
-
                 }
             ],
+            rate: 5,
+            tooltips: [1, 2, 3, 4, 5],
+            customerList: '',
             showNav: true,
             customDesc: ' ',
             personInfo: {
@@ -121,13 +183,37 @@ export default {
                     headerPosition: 'left'
                 }
             },
+            chatToCustomer: {
+                primary: {
+                    visible: false,
+                    headerPosition: 'center'
+                }
+            },
+            chatToCustomerData: {
+                id: '',   //接收者id
+                message: ''
+            },
+            scoreToCustomer: {
+                primary: {
+                    visible: false,
+                    headerPosition: 'left'
+                }
+            },
+            scoreToCustomerData: {
+                id: '',   //接收者id
+                message: ''
+            },
+            message: '',
+            sender: '',
+            receiver: ''
+
         }
     },
     created () {
         this.getParams()
     },
     mounted () {
-
+        this.getCustomerList()
     },
     watch: {
         // 监测路由变化,只要变化了就调用获取路由参数方法将数据存储本组件即可
@@ -151,7 +237,7 @@ export default {
         },
         getMemberInfo () {
             console.log('接口id', this.id)
-            this.$axios.get('project/serach_member_info/', { params: { id: this.id } }).then(res => {
+            this.$axios.get('project/search_member_info/', { params: { id: this.id } }).then(res => {
                 this.personInfo = res.data.data[0]
                 console.log('idresult', res)
             }).catch(error => {
@@ -161,8 +247,17 @@ export default {
                 })
             });
         },
+
         openEditPersonDialog () {
             this.editPersonInfo.primary.visible = true
+        },
+        openChatDialog (row) {
+            this.chatToCustomer.primary.visible = true
+            this.chatToCustomerData.id = row.id
+        },
+        openScoreDialog (row) {
+            this.scoreToCustomer.primary.visible = true
+            this.scoreToCustomerData.id = row.id
         },
         submitEditPersonData () {
             console.log('personInfo', this.personInfo)
@@ -198,6 +293,54 @@ export default {
                     })
                 });
             }
+        },
+        getCustomerList () {
+            this.$axios.get('project/get_customer_list/').then(res => {
+                console.log('获取用户信息', res);
+                if (res.data.result === true) {
+                    this.customerList = res.data.data
+                } else {
+                    this.$bkMessage({
+                        message: '获取客服列表失败',
+                        theme: 'error'
+                    })
+                }
+
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
+        },
+        sendToCustomer () {
+            this.sender = this.personInfo.id
+            this.receiver = this.chatToCustomerData.id
+            this.message = this.chatToCustomerData.message
+            console.log('message', this.message)
+            console.log('发送者id', this.sender)
+            console.log('接受者', this.receiver)
+            this.$axios.get('project/member_send_to_customer/', { params: { sender: this.sender, receiver: this.receiver, message: this.message, } }).then(res => {
+                console.log('res', res)
+                if (res.data.result === true) {
+                    this.$bkMessage({
+                        message: '发送成功',
+                        theme: 'success'
+                    })
+                    document.getElementById('chat-message-input').value = ''
+                    this.message = ''
+                } else {
+                    this.$bkMessage({
+                        message: '发送失败！',
+                        theme: 'error'
+                    })
+                }
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
         }
     }
 }
@@ -205,6 +348,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#chat-log{
+    margin-top: 20px;
+    width: 90%;
+    height: 450px;
+    border:1px solid #c4c6cc;
+    overflow: auto;
+}
+#chat-message-input{
+    width: 90%;
+}
 .wrapper {
     background: #ffffff;
     height: 100%;
@@ -236,4 +389,15 @@ a {
     margin-top: 0;
     margin-bottom: 10px;
 }
+.senderMes{
+    width: 100%;
+}
+.senderMes .bk-tag, 
+.senderMes span{
+    float: right;
+}
+.receiverMes{
+    width: 100%;
+}
+
 </style>

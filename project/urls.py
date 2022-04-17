@@ -12,8 +12,10 @@ urlpatterns = [
     url(r'^get_customer_list', views.get_customer_list),
     url(r'^edit_customer_info', views.edit_customer_info),
     url(r'^delete_customer_info', views.delete_customer_info),
-    url(r'^serach_member_info', views.serach_member_info),
+    url(r'^search_member_info', views.search_member_info),
     url(r'^edit_member_info', views.edit_member_info),
+    url(r'^member_send_to_customer', views.member_send_to_customer),
+
     
 
 

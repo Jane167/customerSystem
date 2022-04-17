@@ -63,3 +63,18 @@ class Manager(UserAbstractModel):
 
     def __str__(self):
         return self.username
+
+class ChatRecords(models.Model):
+    '''在线客服聊天记录模型类'''
+    sender = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name='发送者', null=False)
+    receiver = models.ForeignKey(Customer, on_delete=models.CASCADE,verbose_name='接收者', null=False)
+    message = models.TextField(verbose_name='聊天信息')
+    send_time = models.DateTimeField(auto_now_add=True, verbose_name='发送时间')
+
+    class Meta:
+        db_table = "tb_chat_records"
+        verbose_name = '客服聊天记录'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.id

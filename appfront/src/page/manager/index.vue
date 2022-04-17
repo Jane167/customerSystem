@@ -110,8 +110,8 @@ export default {
         }
     },
     mounted () {
-        this.getMemberList(),
-            this.getCustomerList()
+        this.getMemberList()
+        this.getCustomerList()
     },
     methods: {
         exit () {
