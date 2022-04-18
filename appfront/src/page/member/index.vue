@@ -82,8 +82,8 @@
             </bk-form>
         </bk-dialog>
         <!-- 聊天dialog -->
-        <bk-dialog v-model="chatToCustomer.primary.visible" @confirm="sendToCustomer" :on-close="closeChatDialog" theme="primary" :mask-close="false" :header-position="chatToCustomer.primary.headerPosition" title="聊天框" ok-text="发送" cancel-text="关闭" fullscreen='true' :auto-close='false'>
-            <bk-form :label-width="100" :model="personInfo">
+        <bk-dialog v-model="chatToCustomer.primary.visible" @confirm="sendToCustomer" :on-close="closeChatDialog" theme="primary" :mask-close="false" :header-position="chatToCustomer.primary.headerPosition" title="聊天框" ok-text="发送" cancel-text="关闭" :fullscreen=true :auto-close='false'>
+            <bk-form :label-width="100">
                 <bk-form-item :property="'records'" :desc="customDesc" style="margin-top: 200">
                     <div id="chat-log">
                         <bk-link theme="primary" style="margin-left: 47%" @click="searchMemberMessage"><bk-icon type="password" />点击加载聊天记录</bk-link>
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                 </bk-form-item>
-                <bk-form-item required="true" :property="'chat-messageinput'" :desc="customDesc">
+                <bk-form-item :required=true :property="'chat-messageinput'">
                     <bk-input id='chat-message-input' type="textarea" placeholder="请输入你要发送的信息" v-model='chatToCustomerData.message'></bk-input>
                 </bk-form-item>
             </bk-form>
@@ -396,13 +396,9 @@ a {
     display: block;
     margin-left: 60px;
 }
-.bk-card-body p {
-    margin-top: 0;
-    margin-bottom: 10px;
-}
+
 .senderMes {
     width: 100%;
-    /* border: 1px solid #42b983; */
     height: 45px;
 }
 .senderMes .bk-tag {

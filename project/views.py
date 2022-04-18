@@ -74,8 +74,7 @@ def login_authentication(request):
                 result0 = Member.objects.filter(**user)
                 if result0.exists():
                     result_data = result0.values()
-                    print('resultdata', result_data)
-                    id = result_data[0]['id'],
+                    id = result_data[0]['id']
                     return JsonResponse({
                         "result": True, "code": 200, "message": '登录成功，点击确定跳转至主页！', 'id': id
                     })
@@ -84,8 +83,10 @@ def login_authentication(request):
             elif int(role) == 1:
                 result1=Customer.objects.filter(**user)
                 if result1.exists():
+                    result_data1 = result1.values()
+                    customer_id = result_data1[0]['id']
                     return JsonResponse({
-                        "result": True, "code": 200, "message": '登录成功，点击确定跳转至主页！',
+                        "result": True, "code": 200, "message": '登录成功，点击确定跳转至主页！', 'id': customer_id
                     })
                 else:
                     return JsonResponse({"result": False, "code": 101, "message": '用户名或密码错误'})

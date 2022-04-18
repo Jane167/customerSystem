@@ -92,7 +92,8 @@ export default {
                 identity: '',
             },
             customDesc: ' ',
-            member_id: ''
+            member_id: '',
+            customer_id: ''
         }
     },
     create: {
@@ -136,7 +137,8 @@ export default {
                 //调用登录接口
                 this.$axios.post('project/login_authentication/', this.loginForm).then(res => {
                     if(res.data.id){
-                        var id = res.data.id[0]
+                        var id = res.data.id
+                        console.log('ididididid:', id)
                     }
                     console.log(res);
                     if (res.data.result === true) {
@@ -156,9 +158,14 @@ export default {
                                 })
                             }, 100)
                         } else if (this.loginForm.identity == '1') {
+                            this.customer_id = id
+                            console.log('customer_id', this.customer_id)
                             setTimeout(() => {
                                 this.$router.push({
-                                    name: 'customer'
+                                    name: 'customer',
+                                    params: {
+                                        id: this.customer_id
+                                    }
                                 })
                             }, 100)
                         } else {
