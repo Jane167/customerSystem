@@ -82,39 +82,20 @@
             </bk-form>
         </bk-dialog>
         <!-- 聊天dialog -->
-        <bk-dialog v-model="chatToCustomer.primary.visible" 
-        @confirm="sendToCustomer" theme="primary" 
-        :mask-close="false" 
-        :header-position="chatToCustomer.primary.headerPosition" 
-        title="聊天框"
-        ok-text="发送"
-        cancel-text="关闭"
-        fullscreen='true'
-        :auto-close='false'
-        >
+        <bk-dialog v-model="chatToCustomer.primary.visible" @confirm="sendToCustomer" :on-close="closeChatDialog" theme="primary" :mask-close="false" :header-position="chatToCustomer.primary.headerPosition" title="聊天框" ok-text="发送" cancel-text="关闭" fullscreen='true' :auto-close='false'>
             <bk-form :label-width="100" :model="personInfo">
                 <bk-form-item :property="'records'" :desc="customDesc" style="margin-top: 200">
                     <div id="chat-log">
-                        <div class="senderMes">
-                            <bk-tag theme="success">我</bk-tag><br>
-                            <span>{{chatToCustomer.message}}</span>
-                        </div>
-                        <div class="receiverMes">
-                            <bk-tag theme="info">我的</bk-tag><br>
-                            <span>这是消息</span>
-                        </div>
-                        <div class="senderMes">
-                            <bk-tag theme="success">我</bk-tag><br>
-                            <span>{{chatToCustomer.message}}</span>
-                        </div>
-                        <div class="receiverMes">
-                            <bk-tag theme="info">我的</bk-tag><br>
-                            <span>这是消息</span>
+                        <bk-link theme="primary" style="margin-left: 47%" @click="searchMemberMessage"><bk-icon type="password" />点击加载聊天记录</bk-link>
+                        <div v-for="item in message_records" v-bind="item" :key="item" class="senderMes">
+                            <bk-tag theme="success">我： {{item.message}}
+                                <br>发送时间：{{item.send_time}}
+                            </bk-tag><br>
                         </div>
                     </div>
                 </bk-form-item>
                 <bk-form-item required="true" :property="'chat-messageinput'" :desc="customDesc">
-                    <bk-input id='chat-message-input' type="textarea" placeholder="请输入你要发送的信息" v-model='chatToCustomer.message'></bk-input>
+                    <bk-input id='chat-message-input' type="textarea" placeholder="请输入你要发送的信息" v-model='chatToCustomerData.message'></bk-input>
                 </bk-form-item>
             </bk-form>
         </bk-dialog>
@@ -126,11 +107,6 @@
                 </bk-form-item>
             </bk-form>
         </bk-dialog>
-        <!-- <bk-dialog>
-            <bk-input type="textarea" id='chat-log'></bk-input>
-            <bk-input id='chat-message-input' v-model='message'></bk-input>
-            <bk-button id="chat-message-submit" theme="primary" @click="sendToCustomer">发送</bk-button>
-        </bk-dialog> -->
     </div>
 </template>
 
@@ -158,7 +134,6 @@ export default {
                     tooltip: '点击退出登录',
                     action: () => {
                         this.exit()
-                        // window.open('http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzgwMDgwMjAwMV80NDMwOTZfODAwODAyMDAxXzJf')
                     }
                 }
             ],
@@ -190,7 +165,7 @@ export default {
                 }
             },
             chatToCustomerData: {
-                id: '',   //接收者id
+                id: '',
                 message: ''
             },
             scoreToCustomer: {
@@ -205,13 +180,16 @@ export default {
             },
             message: '',
             sender: '',
-            receiver: ''
+            receiver: '',
+            message_records: ''
 
         }
     },
+    // 模板渲染之前调用
     created () {
         this.getParams()
     },
+    //模板渲染之后调用的
     mounted () {
         this.getCustomerList()
     },
@@ -254,6 +232,13 @@ export default {
         openChatDialog (row) {
             this.chatToCustomer.primary.visible = true
             this.chatToCustomerData.id = row.id
+        },
+        closeChatDialog(){
+            console.log('关闭')
+            this.message_records = ''
+            console.log('聊天记录', this.message_records)
+            this.chatToCustomer.primary.visible = false
+            
         },
         openScoreDialog (row) {
             this.scoreToCustomer.primary.visible = true
@@ -328,7 +313,8 @@ export default {
                         theme: 'success'
                     })
                     document.getElementById('chat-message-input').value = ''
-                    this.message = ''
+                    this.chatToCustomerData.message = ''
+                    this.searchMemberMessage()
                 } else {
                     this.$bkMessage({
                         message: '发送失败！',
@@ -341,21 +327,46 @@ export default {
                     theme: 'error'
                 })
             });
-        }
-    }
+        },
+        // 查询消息记录
+        searchMemberMessage () {
+            this.sender = this.personInfo.id
+            this.receiver = this.chatToCustomerData.id
+            this.$axios.get('project/member_message_records/', { params: { sender: this.sender, receiver: this.receiver } }).then(res => {
+                console.log('res', res)
+                if (res.data.result === true) {
+                    this.message_records = res.data.data
+                    console.log('消息记录', this.message_records)
+                } else {
+                    this.$bkMessage({
+                        message: '消息记录查询失败！',
+                        theme: 'error'
+                    })
+                }
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
+        },
+    },
+    destroyed () {
+        clearInterval(this.times)		//退出页面后销毁定时方法
+    },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#chat-log{
+#chat-log {
     margin-top: 20px;
     width: 90%;
     height: 450px;
-    border:1px solid #c4c6cc;
+    border: 1px solid #c4c6cc;
     overflow: auto;
 }
-#chat-message-input{
+#chat-message-input {
     width: 90%;
 }
 .wrapper {
@@ -389,15 +400,18 @@ a {
     margin-top: 0;
     margin-bottom: 10px;
 }
-.senderMes{
+.senderMes {
     width: 100%;
+    /* border: 1px solid #42b983; */
+    height: 45px;
 }
-.senderMes .bk-tag, 
-.senderMes span{
+.senderMes .bk-tag {
+    margin-right: 10px;
     float: right;
-}
-.receiverMes{
-    width: 100%;
+    height: 40px;
 }
 
+.receiverMes {
+    width: 100%;
+}
 </style>

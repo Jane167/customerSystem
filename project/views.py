@@ -279,4 +279,41 @@ def member_send_to_customer(request):
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
 
+#查询消息记录
+def member_message_records(request):
+    if request.method == 'GET':
+        sender = request.GET.get('sender')
+        receiver = request.GET.get('receiver')
+        print('senderID', sender)
+        print('receieID', receiver)
 
+        search_dict = {}
+        search_dict['sender'] = Member.objects.get(id = int(sender))
+        search_dict['receiver'] = Customer.objects.get(id = int(receiver))
+        chatrecords = ChatRecords.objects.filter(**search_dict)
+        # print('查询记录', chatrecords)
+        result_data = []
+        for item in chatrecords:
+            result_data.append(
+                {
+                    'id': item.id,
+                    'sender': item.sender.id,
+                    'reciver': item.receiver.id,
+                    'message': item.message,
+                    'send_time': item.send_time.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
+        try:
+            print('result_data', result_data)
+            return JsonResponse(
+                {
+                    "result": True, "code": 200,
+                    "message": '查询成功',
+                    "data": result_data
+                }
+            )
+        except Exception as error:
+            print('消息记录错误', error)
+            return JsonResponse({"result": False, "code": 101, "message": "查询失败！"})
+    else:
+        return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})

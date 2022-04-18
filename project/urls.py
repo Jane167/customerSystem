@@ -15,10 +15,7 @@ urlpatterns = [
     url(r'^search_member_info', views.search_member_info),
     url(r'^edit_member_info', views.edit_member_info),
     url(r'^member_send_to_customer', views.member_send_to_customer),
+    url(r'^member_message_records', views.member_message_records),
 
-    
-
-
-    
 
 ]
