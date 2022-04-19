@@ -204,27 +204,34 @@ export default {
             this.sender = this.id
             this.receiver = this.chatToMemberData.id
             this.message = this.chatToMemberData.message
-            this.$axios.get('project/customer_send_to_member/', { params: { sender: this.sender, receiver: this.receiver, message: this.message } }).then(res => {
-                if (res.data.result === true) {
+            if (this.message === '') {
+                this.$bkMessage({
+                    message: '不能发送空消息，请输入消息！',
+                    theme: 'warning'
+                })
+            } else {
+                this.$axios.get('project/customer_send_to_member/', { params: { sender: this.sender, receiver: this.receiver, message: this.message } }).then(res => {
+                    if (res.data.result === true) {
+                        this.$bkMessage({
+                            message: '发送成功',
+                            theme: 'success'
+                        })
+                        document.getElementById('chat-message-input').value = ''
+                        this.chatToMemberData.message = ''
+                        this.loadChatRecords()
+                    } else {
+                        this.$bkMessage({
+                            message: '发送失败！',
+                            theme: 'error'
+                        })
+                    }
+                }).catch(error => {
                     this.$bkMessage({
-                        message: '发送成功',
-                        theme: 'success'
-                    })
-                    document.getElementById('chat-message-input').value = ''
-                    this.chatToMemberData.message = ''
-                    this.loadChatRecords()
-                } else {
-                    this.$bkMessage({
-                        message: '发送失败！',
+                        message: error,
                         theme: 'error'
                     })
-                }
-            }).catch(error => {
-                this.$bkMessage({
-                    message: error,
-                    theme: 'error'
-                })
-            });
+                });
+            }
         },
         // 获取发出的聊天记录
         searchCustomerMessage () {

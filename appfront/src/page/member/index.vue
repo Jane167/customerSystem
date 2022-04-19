@@ -89,7 +89,7 @@
                         <bk-link theme="primary" style="margin-left: 47%" @click="loadChatRecords">
                             <bk-icon type="password" />点击加载聊天记录
                         </bk-link>
-                         <div v-for="item in message_records" v-bind="item" :key="item">
+                        <div v-for="item in message_records" v-bind="item" :key="item">
                             <div v-if="item.send_direction === 1" class="receiverMes">
                                 <bk-tag theme="info">{{username}}： {{item.message}}
                                     <br>发送时间：{{item.send_time}}
@@ -271,6 +271,10 @@ export default {
         },
         closeChatDialog () {
             this.message_records = ''
+            this.sender = ''
+            this.receiver = ''
+            this.id = ''
+            this.chatToCustomerData.id = ''
             this.chatToCustomer.primary.visible = false
 
         },
@@ -279,7 +283,6 @@ export default {
             this.scoreToCustomerData.id = row.id
         },
         submitEditPersonData () {
-            console.log('personInfo', this.personInfo)
             if (this.personInfo.username === '') {
                 this.$bkMessage({
                     message: '用户名不能为空！',
@@ -292,7 +295,6 @@ export default {
                 })
             } else {
                 this.$axios.post('project/edit_member_info/', this.personInfo).then(res => {
-                    console.log('提交', res);
                     if (res.data.result === true) {
                         this.$bkMessage({
                             message: '修改成功！',
@@ -315,7 +317,6 @@ export default {
         },
         getCustomerList () {
             this.$axios.get('project/get_customer_list/').then(res => {
-                console.log('获取用户信息', res);
                 if (res.data.result === true) {
                     this.customerList = res.data.data
                 } else {
@@ -336,31 +337,35 @@ export default {
             this.sender = this.personInfo.id
             this.receiver = this.chatToCustomerData.id
             this.message = this.chatToCustomerData.message
-            console.log('message', this.message)
-            console.log('发送者id', this.sender)
-            console.log('接受者', this.receiver)
-            this.$axios.get('project/member_send_to_customer/', { params: { sender: this.sender, receiver: this.receiver, message: this.message, } }).then(res => {
-                console.log('res', res)
-                if (res.data.result === true) {
+            if (this.message === '') {
+                this.$bkMessage({
+                    message: '不能发送空消息，请输入消息！',
+                    theme: 'warning'
+                })
+            } else {
+                this.$axios.get('project/member_send_to_customer/', { params: { sender: this.sender, receiver: this.receiver, message: this.message, } }).then(res => {
+                    console.log('res', res)
+                    if (res.data.result === true) {
+                        this.$bkMessage({
+                            message: '发送成功',
+                            theme: 'success'
+                        })
+                        document.getElementById('chat-message-input').value = ''
+                        this.chatToCustomerData.message = ''
+                        this.loadChatRecords()
+                    } else {
+                        this.$bkMessage({
+                            message: '发送失败！',
+                            theme: 'error'
+                        })
+                    }
+                }).catch(error => {
                     this.$bkMessage({
-                        message: '发送成功',
-                        theme: 'success'
-                    })
-                    document.getElementById('chat-message-input').value = ''
-                    this.chatToCustomerData.message = ''
-                    this.searchMemberMessage()
-                } else {
-                    this.$bkMessage({
-                        message: '发送失败！',
+                        message: error,
                         theme: 'error'
                     })
-                }
-            }).catch(error => {
-                this.$bkMessage({
-                    message: error,
-                    theme: 'error'
-                })
-            });
+                });
+            }
         },
         // 查询会员消息记录
         searchMemberMessage () {

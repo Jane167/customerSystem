@@ -44,16 +44,16 @@
         <!-- 编辑客服信息dialog -->
         <bk-dialog v-model="editInfo.primary.visible" @confirm="submitEditData" theme="primary" :mask-close="false" :header-position="editInfo.primary.headerPosition" title="编辑客服信息">
             <bk-form :label-width="100" :model="customerFormData">
-                <bk-form-item label="昵称" :property="'nickname'" :desc="customDesc">
+                <bk-form-item label="昵称" :property="'nickname'">
                     <bk-input v-model="customerFormData.nickname" placeholder="请输入昵称"></bk-input>
                 </bk-form-item>
-                <bk-form-item label="用户名" :required="true" :property="'username'" :desc="customDesc">
+                <bk-form-item label="用户名" :required="true" :property="'username'">
                     <bk-input v-model="customerFormData.username" placeholder="请输入用户名"></bk-input>
                 </bk-form-item>
-                <bk-form-item label="密码" :required="true" :property="'password'" :desc="customDesc">
+                <bk-form-item label="密码" :required="true" :property="'password'">
                     <bk-input type='password' v-model="customerFormData.password" placeholder="请输入密码"></bk-input>
                 </bk-form-item>
-                <bk-form-item label="个人介绍" :property="'introduction'" :desc="customDesc">
+                <bk-form-item label="个人介绍" :property="'introduction'">
                     <bk-input v-model="customerFormData.introduction" placeholder="请输入个人介绍"></bk-input>
                 </bk-form-item>
             </bk-form>
@@ -84,7 +84,6 @@ export default {
                     tooltip: '点击退出登录',
                     action: () => {
                         this.exit()
-                        // window.open('http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzgwMDgwMjAwMV80NDMwOTZfODAwODAyMDAxXzJf')
                     }
                 }
 
@@ -181,7 +180,6 @@ export default {
                 })
             } else {
                 this.$axios.post('project/edit_customer_info/', this.customerFormData).then(res => {
-                    console.log('提交', res);
                     if (res.data.result === true) {
                         this.$bkMessage({
                             message: '修改成功！',

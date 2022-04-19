@@ -32,7 +32,6 @@ def register(request):
             "role": role
         }
         # print('requestBody', jsonLoad)
-        print('user用户:', user)
         if int(role) == 0:
             if Member.objects.filter(username=username):
                 return JsonResponse({"result": False, "code": 101, "message": '注册失败，该用户名已经注册'})
@@ -209,7 +208,6 @@ def delete_customer_info(request):
 def search_member_info(request):
     if request.method == 'GET':
         id = request.GET.get("id")
-        print('id------:', id)
         if id is None:
             return JsonResponse(
                 {"result": False, "code": 400, "message": "该用户不存在", "data": {}}
@@ -217,7 +215,6 @@ def search_member_info(request):
         else:
             try:
                 member = list(Member.objects.filter(id=id).values())
-                print('member', member)
                 member[0]['create_time'] = member[0]['create_time'].strftime("%Y-%m-%d %H:%M:%S")
                 member[0]['update_time'] = member[0]['update_time'].strftime("%Y-%m-%d %H:%M:%S")
 
@@ -275,7 +272,6 @@ def member_send_to_customer(request):
             ChatRecords.objects.create(**kwargs)
             return JsonResponse({"result": True, "code": 200, "message": "发送成功!"})
         except Exception as error:
-            print('发送错误原因', error)
             return JsonResponse({"result": False, "code": 101, "message": "发送失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
@@ -285,8 +281,6 @@ def member_message_records(request):
     if request.method == 'GET':
         sender = request.GET.get('sender')
         receiver = request.GET.get('receiver')
-        print('senderID', sender)
-        print('receieID', receiver)
 
         search_dict = {}
         search_dict['sender'] = Member.objects.get(id = int(sender))
@@ -306,7 +300,6 @@ def member_message_records(request):
                 }
             )
         try:
-            print('result_data', result_data)
             return JsonResponse(
                 {
                     "result": True, "code": 200,
@@ -315,7 +308,6 @@ def member_message_records(request):
                 }
             )
         except Exception as error:
-            print('消息记录错误', error)
             return JsonResponse({"result": False, "code": 101, "message": "查询失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
@@ -337,7 +329,6 @@ def customer_send_to_member(request):
             ChatRecordsCustomer.objects.create(**kwargs)
             return JsonResponse({"result": True, "code": 200, "message": "发送成功!"})
         except Exception as error:
-            print('发送错误原因', error)
             return JsonResponse({"result": False, "code": 101, "message": "发送失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
@@ -347,8 +338,6 @@ def customer_message_records(request):
     if request.method == 'GET':
         sender = request.GET.get('sender')
         receiver = request.GET.get('receiver')
-        print('senderID', sender)
-        print('receieID', receiver)
 
         search_dict = {}
         search_dict['sender'] = Customer.objects.get(id = int(sender))
@@ -368,7 +357,6 @@ def customer_message_records(request):
                 }
             )
         try:
-            print('result_data', result_data)
             return JsonResponse(
                 {
                     "result": True, "code": 200,
@@ -377,7 +365,6 @@ def customer_message_records(request):
                 }
             )
         except Exception as error:
-            print('消息记录错误', error)
             return JsonResponse({"result": False, "code": 101, "message": "查询失败！"})
     else:
         return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
