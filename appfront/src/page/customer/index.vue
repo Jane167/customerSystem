@@ -141,7 +141,6 @@ export default {
         },
         getMemberList () {
             this.$axios.get('project/get_member_list/').then(res => {
-                console.log('获取会员用户信息', res);
                 if (res.data.result === true) {
                     this.memberList = res.data.data
                     console.log(this.memberList)
@@ -164,12 +163,9 @@ export default {
             this.chatToMember.primary.visible = true
             this.chatToMemberData.id = row.id
             this.username = row.username
-            console.log('聊天对象：', this.username)
         },
         closeChatDialog () {
-            console.log('关闭')
             this.message_records = ''
-            console.log('聊天记录', this.message_records)
             this.chatToMember.primary.visible = false
 
         },
@@ -177,21 +173,19 @@ export default {
             this.searchMemberMessage()
             this.searchCustomerMessage()
             this.message_records = [...this.message_records_member, ...this.message_records_customer]
-            console.log('this.message_records', this.message_records)
-            this.message_records = this.message_records.sort( function(a, b){
-                return a.send_time - b.send_time
+            this.message_records.sort((a, b) => {
+                let t1 = new Date(Date.parse(a.send_time.replace(/-/g, "/")))
+                let t2 = new Date(Date.parse(b.send_time.replace(/-/g, "/")))
+                return t1.getTime() - t2.getTime()
             })
-            console.log('排序后：', this.message_records)
         },
         // 获取收到的聊天记录
         searchMemberMessage () {
             // this.sender = this.personInfo.id
             this.receiver = this.chatToMemberData.id
             this.$axios.get('project/member_message_records/', { params: { sender: this.receiver, receiver: this.id } }).then(res => {
-                console.log('res', res)
                 if (res.data.result === true) {
                     this.message_records_member = res.data.data
-                    console.log('消息记录', this.message_records)
                 } else {
                     this.$bkMessage({
                         message: '消息记录查询失败！',
@@ -211,7 +205,6 @@ export default {
             this.receiver = this.chatToMemberData.id
             this.message = this.chatToMemberData.message
             this.$axios.get('project/customer_send_to_member/', { params: { sender: this.sender, receiver: this.receiver, message: this.message } }).then(res => {
-                console.log('res', res)
                 if (res.data.result === true) {
                     this.$bkMessage({
                         message: '发送成功',
@@ -237,10 +230,8 @@ export default {
         searchCustomerMessage () {
             this.receiver = this.chatToMemberData.id
             this.$axios.get('project/customer_message_records/', { params: { sender: this.id, receiver: this.receiver } }).then(res => {
-                console.log('res', res)
                 if (res.data.result === true) {
                     this.message_records_customer = res.data.data
-                    console.log('消息记录', this.message_records_customer)
                 } else {
                     this.$bkMessage({
                         message: '消息记录查询失败！',
