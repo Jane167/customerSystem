@@ -66,7 +66,7 @@ export default {
     name: 'manager',
     data () {
         return {
-            msg: 'Welcome to Online customer service management system !',
+            msg: '欢迎来到企业在线客服管理系统！',
             identity: '管理员',
             panels: [
                 { name: 'member', label: '会员用户管理', count: 10 },

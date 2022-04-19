@@ -28,8 +28,6 @@
                             </bk-form-item>
                             <bk-form-item>
                                 <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="loginAccount">登录</bk-button>
-                                <bk-button style="margin-right: 3px;" theme="primary" title="登录" @click="test">测试</bk-button>
-
                                 <bk-button ext-cls="mr5" theme="default" title="取消" @click="cancelLogin">取消</bk-button>
                             </bk-form-item>
                         </bk-form>
@@ -74,7 +72,7 @@ export default {
     name: 'login',
     data () {
         return {
-            msg: 'welcome to Online customer service management system',
+            msg: '欢迎来到企业在线客服管理系统！',
             panels: [
                 { name: 'login', label: '登录', count: 10 },
                 { name: 'register', label: '注册', count: 20 }
@@ -97,18 +95,8 @@ export default {
         }
     },
     create: {
-
     },
     methods: {
-        test () {
-            axios.Post({
-                url: 'http://127.0.0.1:8000/project/register/',
-                params: this.registerForm,
-                callback: (res) => {
-                    console.log('test', res)
-                }
-            })
-        },
         submitData () {
             alert(JSON.stringify(this.formData))
         },
@@ -270,8 +258,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .wrapper {
-    /* background-image: url('../../images/homepage.jpg'); */
-    background: #f56c6c;
     height: 100%;
     overflow: hidden;
     margin: 0;

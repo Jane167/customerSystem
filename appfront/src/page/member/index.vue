@@ -117,7 +117,7 @@ export default {
         return {
             icons: ['icon-right-shape', 'icon-down-shape'],
             status: false,
-            msg: 'Welcome to Online customer service management system !',
+            msg: '欢迎来到企业在线客服管理系统！',
             identity: '会员',
             panels: [
                 { name: 'personCenter', label: '个人中心', count: 10 },
