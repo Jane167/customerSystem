@@ -177,8 +177,11 @@ export default {
             this.searchMemberMessage()
             this.searchCustomerMessage()
             this.message_records = [...this.message_records_member, ...this.message_records_customer]
-            console.log('客服聊天记录', this.message_records_customer)
-            console.log('会员俩天记录', this.message_records_member)
+            console.log('this.message_records', this.message_records)
+            this.message_records = this.message_records.sort( function(a, b){
+                return a.send_time - b.send_time
+            })
+            console.log('排序后：', this.message_records)
         },
         // 获取收到的聊天记录
         searchMemberMessage () {
@@ -216,7 +219,7 @@ export default {
                     })
                     document.getElementById('chat-message-input').value = ''
                     this.chatToMemberData.message = ''
-                    this.searchMemberMessage()
+                    this.loadChatRecords()
                 } else {
                     this.$bkMessage({
                         message: '发送失败！',
@@ -290,20 +293,5 @@ export default {
 }
 .receiverMes .bk-tag {
     height: 40px;
-}
-h1,
-h2 {
-    font-weight: normal;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    color: #42b983;
 }
 </style>

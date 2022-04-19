@@ -86,12 +86,35 @@
             <bk-form :label-width="100">
                 <bk-form-item :property="'records'" :desc="customDesc" style="margin-top: 200">
                     <div id="chat-log">
-                        <bk-link theme="primary" style="margin-left: 47%" @click="searchMemberMessage"><bk-icon type="password" />点击加载聊天记录</bk-link>
-                        <div v-for="item in message_records" v-bind="item" :key="item" class="senderMes">
-                            <bk-tag theme="success">我： {{item.message}}
-                                <br>发送时间：{{item.send_time}}
-                            </bk-tag><br>
+                        <bk-link theme="primary" style="margin-left: 47%" @click="loadChatRecords">
+                            <bk-icon type="password" />点击加载聊天记录
+                        </bk-link>
+                         <div v-for="item in message_records" v-bind="item" :key="item">
+                            <div v-if="item.send_direction === 1" class="receiverMes">
+                                <bk-tag theme="info">{{username}}： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+                            <div v-else-if="item.send_direction === 0" class="senderMes">
+                                <bk-tag theme="success">我： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+
                         </div>
+                        <!-- <div v-for="item in message_records" v-bind="item" :key="item" class="senderMes">
+                            <div v-if="item.send_direction === 0" class="senderMes">
+                                <bk-tag theme="success">我： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+                            <div v-else-if="item.send_direction === 1" class="receiverMes">
+                                <bk-tag theme="info">对方： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+
+                        </div> -->
                     </div>
                 </bk-form-item>
                 <bk-form-item :required=true :property="'chat-messageinput'">
@@ -166,6 +189,7 @@ export default {
             },
             chatToCustomerData: {
                 id: '',
+                username: '',
                 message: ''
             },
             scoreToCustomer: {
@@ -181,7 +205,9 @@ export default {
             message: '',
             sender: '',
             receiver: '',
-            message_records: ''
+            message_records: [],
+            message_records_member: [],
+            message_records_customer: []
 
         }
     },
@@ -225,20 +251,31 @@ export default {
                 })
             });
         },
-
+        loadChatRecords () {
+            this.searchMemberMessage()
+            this.searchCustomerMessage()
+            this.message_records = [...this.message_records_member, ...this.message_records_customer]
+            console.log('this.message_records', this.message_records)
+            this.message_records = this.message_records.sort(function (a, b) {
+                return a.send_time - b.send_time
+            })
+            console.log('排序后：', this.message_records)
+        },
         openEditPersonDialog () {
             this.editPersonInfo.primary.visible = true
         },
         openChatDialog (row) {
             this.chatToCustomer.primary.visible = true
+            this.chatToCustomerData.username = row.username
+            this.username = row.username
             this.chatToCustomerData.id = row.id
         },
-        closeChatDialog(){
+        closeChatDialog () {
             console.log('关闭')
             this.message_records = ''
             console.log('聊天记录', this.message_records)
             this.chatToCustomer.primary.visible = false
-            
+
         },
         openScoreDialog (row) {
             this.scoreToCustomer.primary.visible = true
@@ -328,15 +365,36 @@ export default {
                 })
             });
         },
-        // 查询消息记录
+        // 查询会员消息记录
         searchMemberMessage () {
             this.sender = this.personInfo.id
             this.receiver = this.chatToCustomerData.id
             this.$axios.get('project/member_message_records/', { params: { sender: this.sender, receiver: this.receiver } }).then(res => {
                 console.log('res', res)
                 if (res.data.result === true) {
-                    this.message_records = res.data.data
-                    console.log('消息记录', this.message_records)
+                    this.message_records_member = res.data.data
+                    console.log('消息记录', this.message_records_member)
+                } else {
+                    this.$bkMessage({
+                        message: '消息记录查询失败！',
+                        theme: 'error'
+                    })
+                }
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
+        },
+
+        searchCustomerMessage () {
+
+            this.$axios.get('project/customer_message_records/', { params: { sender: this.chatToCustomerData.id, receiver: this.id } }).then(res => {
+                console.log('res', res)
+                if (res.data.result === true) {
+                    this.message_records_customer = res.data.data
+                    console.log('客服的消息记录', this.message_records_customer)
                 } else {
                     this.$bkMessage({
                         message: '消息记录查询失败！',
@@ -406,8 +464,11 @@ a {
     float: right;
     height: 40px;
 }
-
 .receiverMes {
+    height: 45px;
     width: 100%;
+}
+.receiverMes .bk-tag {
+    height: 40px;
 }
 </style>
