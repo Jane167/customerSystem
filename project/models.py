@@ -64,16 +64,37 @@ class Manager(UserAbstractModel):
     def __str__(self):
         return self.username
 
+class SendDirection(models.Model):
+    MEMBER_TO_CUSTOMER = 0    #会员->客服
+    CUSTOMER_TO_MEMBER = 1    #客服->会员
+
 class ChatRecords(models.Model):
-    '''在线客服聊天记录模型类'''
+    '''在线客服聊天记录模型类1'''
     sender = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name='发送者', null=False)
     receiver = models.ForeignKey(Customer, on_delete=models.CASCADE,verbose_name='接收者', null=False)
     message = models.TextField(verbose_name='聊天信息')
     send_time = models.DateTimeField(auto_now_add=True, verbose_name='发送时间')
+    send_direction = models.IntegerField(verbose_name='发送方向', default=SendDirection.MEMBER_TO_CUSTOMER)
 
     class Meta:
-        db_table = "tb_chat_records"
-        verbose_name = '客服聊天记录'
+        db_table = "chat_records_member_to_customer"
+        verbose_name = '会员发给客服的聊天记录'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.id
+
+class ChatRecordsCustomer(models.Model):
+    '''在线客服聊天记录模型类2'''
+    sender = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='发送者', null=False)
+    receiver = models.ForeignKey(Member, on_delete=models.CASCADE,verbose_name='接收者', null=False)
+    message = models.TextField(verbose_name='聊天信息')
+    send_time = models.DateTimeField(auto_now_add=True, verbose_name='发送时间')
+    send_direction = models.IntegerField(verbose_name='发送方向', default=SendDirection.CUSTOMER_TO_MEMBER)
+
+    class Meta:
+        db_table = "chat_records_customer_to_member"
+        verbose_name = '客服发给会员的聊天记录'
         verbose_name_plural = verbose_name
 
     def __str__(self):

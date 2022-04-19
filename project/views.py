@@ -302,6 +302,69 @@ def member_message_records(request):
                     'reciver': item.receiver.id,
                     'message': item.message,
                     'send_time': item.send_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'send_direction': item.send_direction
+                }
+            )
+        try:
+            print('result_data', result_data)
+            return JsonResponse(
+                {
+                    "result": True, "code": 200,
+                    "message": '查询成功',
+                    "data": result_data
+                }
+            )
+        except Exception as error:
+            print('消息记录错误', error)
+            return JsonResponse({"result": False, "code": 101, "message": "查询失败！"})
+    else:
+        return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
+
+
+#客服给会员发送消息
+def customer_send_to_member(request):
+    if request.method == 'GET':
+        sender = int(request.GET.get('sender'))
+        receiver = int(request.GET.get('receiver'))
+        message = request.GET.get('message')
+
+        kwargs = {
+            'sender': Customer.objects.get(id = sender),
+            'receiver': Member.objects.get(id = receiver),
+            'message': message
+        }
+        try:
+            ChatRecordsCustomer.objects.create(**kwargs)
+            return JsonResponse({"result": True, "code": 200, "message": "发送成功!"})
+        except Exception as error:
+            print('发送错误原因', error)
+            return JsonResponse({"result": False, "code": 101, "message": "发送失败！"})
+    else:
+        return JsonResponse({"result": False, "code": 501, "message": "请求方法错误！"})
+
+#查询消息记录
+def customer_message_records(request):
+    if request.method == 'GET':
+        sender = request.GET.get('sender')
+        receiver = request.GET.get('receiver')
+        print('senderID', sender)
+        print('receieID', receiver)
+
+        search_dict = {}
+        search_dict['sender'] = Customer.objects.get(id = int(sender))
+        search_dict['receiver'] = Member.objects.get(id = int(receiver))
+        chatrecords = ChatRecordsCustomer.objects.filter(**search_dict)
+        # print('查询记录', chatrecords)
+        result_data = []
+        for item in chatrecords:
+            result_data.append(
+                {
+                    'id': item.id,
+                    'sender': item.sender.id,
+                    'reciver': item.receiver.id,
+                    'message': item.message,
+                    'send_time': item.send_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'send_direction': item.send_direction
                 }
             )
         try:

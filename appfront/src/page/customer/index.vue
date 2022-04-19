@@ -34,17 +34,25 @@
             <bk-form :label-width="100">
                 <bk-form-item :property="'records'" style="margin-top: 200">
                     <div id="chat-log">
-                        <bk-link theme="primary" style="margin-left: 47%" @click="searchMemberMessage">
+                        <bk-link theme="primary" style="margin-left: 47%" @click="loadChatRecords">
                             <bk-icon type="password" />点击加载聊天记录
                         </bk-link>
-                        <div v-for="item in message_records" v-bind="item" :key="item" class="receiverMes">
-                            <bk-tag theme="info">{{username}}： {{item.message}}
-                                <br>发送时间：{{item.send_time}}
-                            </bk-tag><br>
+                        <div v-for="item in message_records" v-bind="item" :key="item">
+                            <div v-if="item.send_direction === 0" class="receiverMes">
+                                <bk-tag theme="info">{{username}}： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+                            <div v-else-if="item.send_direction === 1" class="senderMes">
+                                <bk-tag theme="success">我： {{item.message}}
+                                    <br>发送时间：{{item.send_time}}
+                                </bk-tag><br>
+                            </div>
+
                         </div>
                     </div>
                 </bk-form-item>
-                <bk-form-item :required=true :property="'chat-messageinput'" >
+                <bk-form-item :required=true :property="'chat-messageinput'">
                     <bk-input id='chat-message-input' type="textarea" placeholder="请输入你要发送的信息" v-model='chatToMemberData.message'></bk-input>
                 </bk-form-item>
             </bk-form>
@@ -96,10 +104,13 @@ export default {
                 username: '',
                 message: ''
             },
+            message: '',
             // 客服id
             id: '',
             username: '',
-            message_records: ''
+            message_records: [],
+            message_records_member: [],
+            message_records_customer: []
         }
     },
     created () {
@@ -107,7 +118,7 @@ export default {
     },
     mounted () {
         this.getMemberList()
-        
+
     },
     watch: {
         // 监测路由变化,只要变化了就调用获取路由参数方法将数据存储本组件即可
@@ -162,6 +173,13 @@ export default {
             this.chatToMember.primary.visible = false
 
         },
+        loadChatRecords () {
+            this.searchMemberMessage()
+            this.searchCustomerMessage()
+            this.message_records = [...this.message_records_member, ...this.message_records_customer]
+            console.log('客服聊天记录', this.message_records_customer)
+            console.log('会员俩天记录', this.message_records_member)
+        },
         // 获取收到的聊天记录
         searchMemberMessage () {
             // this.sender = this.personInfo.id
@@ -169,7 +187,7 @@ export default {
             this.$axios.get('project/member_message_records/', { params: { sender: this.receiver, receiver: this.id } }).then(res => {
                 console.log('res', res)
                 if (res.data.result === true) {
-                    this.message_records = res.data.data
+                    this.message_records_member = res.data.data
                     console.log('消息记录', this.message_records)
                 } else {
                     this.$bkMessage({
@@ -184,9 +202,55 @@ export default {
                 })
             });
         },
-        sendToMember(){
-            console.log('发送消息！')
-        }
+        // 发送消息
+        sendToMember () {
+            this.sender = this.id
+            this.receiver = this.chatToMemberData.id
+            this.message = this.chatToMemberData.message
+            this.$axios.get('project/customer_send_to_member/', { params: { sender: this.sender, receiver: this.receiver, message: this.message } }).then(res => {
+                console.log('res', res)
+                if (res.data.result === true) {
+                    this.$bkMessage({
+                        message: '发送成功',
+                        theme: 'success'
+                    })
+                    document.getElementById('chat-message-input').value = ''
+                    this.chatToMemberData.message = ''
+                    this.searchMemberMessage()
+                } else {
+                    this.$bkMessage({
+                        message: '发送失败！',
+                        theme: 'error'
+                    })
+                }
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
+        },
+        // 获取发出的聊天记录
+        searchCustomerMessage () {
+            this.receiver = this.chatToMemberData.id
+            this.$axios.get('project/customer_message_records/', { params: { sender: this.id, receiver: this.receiver } }).then(res => {
+                console.log('res', res)
+                if (res.data.result === true) {
+                    this.message_records_customer = res.data.data
+                    console.log('消息记录', this.message_records_customer)
+                } else {
+                    this.$bkMessage({
+                        message: '消息记录查询失败！',
+                        theme: 'error'
+                    })
+                }
+            }).catch(error => {
+                this.$bkMessage({
+                    message: error,
+                    theme: 'error'
+                })
+            });
+        },
     }
 }
 </script>
@@ -224,7 +288,7 @@ export default {
     height: 45px;
     width: 100%;
 }
-.receiverMes .bk-tag{
+.receiverMes .bk-tag {
     height: 40px;
 }
 h1,
@@ -242,5 +306,4 @@ li {
 a {
     color: #42b983;
 }
-
 </style>
